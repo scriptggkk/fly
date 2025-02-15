@@ -20,12 +20,12 @@ local function toggleFly()
         flyButton.Text = "Stop" -- Change button text to 'Stop'
         character.Humanoid.PlatformStand = true -- Disable character controls
         local bodyVelocity = Instance.new("BodyVelocity", character) -- Create BodyVelocity for flying
-        bodyVelocity.Velocity = Vector3.new(0, speed, 0) -- Set upward velocity
-        bodyVelocity.MaxForce = Vector3.new(0, math.huge, 0) -- Max force for vertical movement
+        bodyVelocity.Velocity = Vector3.new(0, speed, 50) -- Set upward velocity 
+        bodyVelocity.MaxForce = Vector3.new(0, math.huge, 50) -- Max force for vertical movement 
 
         -- Fly loop
         while flying do
-            bodyVelocity.Velocity = Vector3.new(0, speed, 0) -- Continue flying upward
+            bodyVelocity.Velocity = Vector3.new(50, speed, 50) -- Continue flying upward 
             wait(0.1) -- Wait for a short duration
         end
         
