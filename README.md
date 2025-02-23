@@ -1,50 +1,61 @@
-```lua
--- Cria uma aba na tela do jogador
 local player = game.Players.LocalPlayer
-local screenGui = Instance.new("ScreenGui")
-local frame = Instance.new("Frame")
-local closeButton = Instance.new("TextButton")
-local flyButton = Instance.new("TextButton")
+local mouse = player:GetMouse()
 
--- Configurações da aba
-screenGui.Parent = player:WaitForChild("PlayerGui")
-frame.Size = UDim2.new(0, 300, 0, 200) -- Tamanho da aba
-frame.Position = UDim2.new(0.5, -150, 0.5, -100) -- Centraliza a aba
-frame.BackgroundColor3 = Color3.new(1, 1, 1) -- Cor da aba
-frame.Parent = screenGui
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0.3, 0, 0.3, 0)
+frame.Position = UDim2.new(0.35, 0, 0.35, 0)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 
--- Configuração do botão de fechar
-closeButton.Size = UDim2.new(0, 30, 0, 30) -- Tamanho do botão de fechar
-closeButton.Position = UDim2.new(1, -35, 0, 5) -- Localização do botão de fechar
-closeButton.Text = "X" -- Texto do botão de fechar
-closeButton.Parent = frame
+local closeButton = Instance.new("TextButton", frame)
+closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+closeButton.Position = UDim2.new(0.9, 0, 0, 0)
+closeButton.Text = "X"
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 
--- Configuração do botão de voar
-flyButton.Size = UDim2.new(0, 100, 0, 50) -- Tamanho do botão de voar
-flyButton.Position = UDim2.new(0.5, -50, 0.5, -25) -- Localização do botão de voar
-flyButton.Text = "Fly" -- Texto do botão de voar
-flyButton.Parent = frame
+local flyButton = Instance.new("TextButton", frame)
+flyButton.Size = UDim2.new(0.5, 0, 0.1, 0)
+flyButton.Position = UDim2.new(0.25, 0, 0.4, 0)
+flyButton.Text = "Fly"
+flyButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 
--- Função para fechar a aba
-local function closeFrame()
-    frame.Visible = false -- Esconde a aba
+local flying = false
+local bodyVelocity
+
+local function fly()
+    if not flying then
+        flying = true
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Parent = humanoidRootPart
+        bodyVelocity.Velocity = Vector3.new(0, 25, 0)
+        bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+
+        while flying do
+            bodyVelocity.Velocity = Vector3.new(mouse.Hit.LookVector.X * 25, 25, mouse.Hit.LookVector.Z * 25)
+            wait()
+        end
+
+        bodyVelocity:Destroy()
+    end
 end
 
--- Função para ativar o voo
-local function enableFly()
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local bodyVelocity = Instance.new("BodyVelocity") -- Cria um BodyVelocity para voar
-    bodyVelocity.Velocity = Vector3.new(0, 50, 0) -- Define a velocidade de voo
-    bodyVelocity.MaxForce = Vector3.new(0, math.huge, 0) -- Permite que o personagem voe
-    bodyVelocity.Parent = character:WaitForChild("HumanoidRootPart") -- Adiciona ao personagem
-
-    -- Remove o BodyVelocity após 5 segundos
-    wait(5)
-    bodyVelocity:Destroy()
+local function stopFly()
+    flying = false
 end
 
--- Conecta as funções aos botões
-closeButton.MouseButton1Click:Connect(closeFrame) -- Fecha a aba ao clicar
-flyButton.MouseButton1Click:Connect(enableFly) -- Ativa o voo ao clicar
-```
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+flyButton.MouseButton1Click:Connect(function()
+    if flying then
+        stopFly()
+        flyButton.Text = "Fly"
+    else
+        fly()
+        flyButton.Text = "Stop"
+    end
+end)
